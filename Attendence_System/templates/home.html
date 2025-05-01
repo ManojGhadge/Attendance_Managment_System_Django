@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | Attendance System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-sm">
+            <h3 class="text-center mb-4">Welcome to the Attendance Management System</h3>
+
+            <div class="mb-3">
+                <label for="roleSelect" class="form-label">Login as:</label>
+                <select class="form-select" id="roleSelect">
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+
+            <div class="d-grid">
+                <button class="btn btn-primary" onclick="redirectToLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function redirectToLogin() {
+        const role = document.getElementById('roleSelect').value;
+        if (role === 'teacher') {
+            window.location.href = '/teacher/login/';
+        } else if (role === 'admin') {
+            window.location.href = '/admin/';
+        } else {
+            alert("Please select a role before continuing.");
+        }
+    }
+</script>
+{% endblock %}

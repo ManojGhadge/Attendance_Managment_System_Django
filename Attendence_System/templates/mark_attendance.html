@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - Attendance System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mark Attendance</h2>
+    <form method="GET" id="courseForm" class="mb-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="course_name">Select Course:</label>
+                    <select class="form-control" id="course_name" name="course_name" required>
+                        <option value="">Select a course</option>
+                        {% for course in courses %}
+                        <option value="{{ course.course_name }}" {% if selected_course == course.course_name %}selected{% endif %}>
+                            {{ course.course_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if students %}
+    <form method="POST" class="mb-4">
+        {% csrf_token %}
+        <input type="hidden" name="course_name" value="{{ selected_course }}">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="attendance_date">Date:</label>
+                    <input type="date" class="form-control" id="attendance_date" name="attendance_date" 
+                           value="{{ today|date:'Y-m-d' }}" required>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.roll_no }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>
+                            <select class="form-control" name="status_{{ student.roll_no }}">
+                                <option value="Present">Present (100%)</option>
+                                <option value="Late">Late (50%)</option>
+                                <option value="Absent">Absent (0%)</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Mark Attendance</button>
+    </form>
+    {% else %}
+        {% if selected_course %}
+            <div class="alert alert-info">No students found for the selected course.</div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<script>
+document.getElementById('course_name').addEventListener('change', function() {
+    document.getElementById('courseForm').submit();
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-select, .form-control {
+        border-radius: 0.35rem;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .table thead th {
+        background-color: #f8f9fc;
+        border-bottom: 2px solid #e3e6f0;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+
+        // Mark all present/absent functionality
+        document.getElementById('markAllPresent').addEventListener('click', function() {
+            document.querySelectorAll('input[type="radio"][value="Present"]').forEach(radio => {
+                radio.checked = true;
+            });
+        });
+
+        document.getElementById('markAllAbsent').addEventListener('click', function() {
+            document.querySelectorAll('input[type="radio"][value="Absent"]').forEach(radio => {
+                radio.checked = true;
+            });
+        });
+
+        // Individual student mark present/absent
+        document.querySelectorAll('.mark-all-present').forEach(button => {
+            button.addEventListener('click', function() {
+                const rollNo = this.dataset.rollNo;
+                document.querySelector(`input[name="status_${rollNo}"][value="Present"]`).checked = true;
+            });
+        });
+
+        document.querySelectorAll('.mark-all-absent').forEach(button => {
+            button.addEventListener('click', function() {
+                const rollNo = this.dataset.rollNo;
+                document.querySelector(`input[name="status_${rollNo}"][value="Absent"]`).checked = true;
+            });
+        });
+    });
+</script>
+{% endblock %}

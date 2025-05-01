@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}View Reports - Attendance System{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Attendance Reports</h2>
+    
+    <form method="GET" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="course_name">Select Course:</label>
+                    <select class="form-control" id="course_name" name="course_name" required>
+                        <option value="">Select a course</option>
+                        {% for course in courses %}
+                        <option value="{{ course.course_name }}" {% if selected_course == course.course_name %}selected{% endif %}>
+                            {{ course.course_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="from_date">From Date:</label>
+                    <input type="date" class="form-control" id="from_date" name="from_date" 
+                           value="{{ from_date|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="to_date">To Date:</label>
+                    <input type="date" class="form-control" id="to_date" name="to_date" 
+                           value="{{ to_date|default:'' }}">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary form-control">Generate Report</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {% if low_attendance_students %}
+    <div class="alert alert-warning mb-4">
+        <h4>Students with Low Attendance (< 75%)</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in low_attendance_students %}
+                    <tr>
+                        <td>{{ student.roll_no }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.percentage }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if records %}
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Roll No</th>
+                    <th>Name</th>
+                    <th>Total Classes</th>
+                    <th>Total Points</th>
+                    <th>Attendance %</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.roll_no }}</td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.total_classes }}</td>
+                    <td>{{ record.total_points }}</td>
+                    <td>{{ record.percentage }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <a href="?{{ request.GET.urlencode }}&download_csv=true" class="btn btn-success">
+            <i class="fas fa-download"></i> Download CSV
+        </a>
+    </div>
+    {% else %}
+        {% if selected_course %}
+            <div class="alert alert-info">No attendance records found for the selected criteria.</div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border: none;
+        border-radius: 1rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 0.5rem;
+    }
+    
+    .table {
+        font-size: 0.9rem;
+    }
+    
+    .badge {
+        padding: 0.5em 0.75em;
+        font-size: 0.85em;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize date inputs with today's date if empty
+        const today = new Date().toISOString().split('T')[0];
+        const fromDate = document.getElementById('from_date');
+        const toDate = document.getElementById('to_date');
+        
+        if (!fromDate.value) fromDate.value = today;
+        if (!toDate.value) toDate.value = today;
+        
+        // Validate date range
+        fromDate.addEventListener('change', function() {
+            if (this.value > toDate.value) {
+                toDate.value = this.value;
+            }
+        });
+        
+        toDate.addEventListener('change', function() {
+            if (this.value < fromDate.value) {
+                fromDate.value = this.value;
+            }
+        });
+    });
+</script>
+{% endblock %}

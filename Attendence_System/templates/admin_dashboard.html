@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h2 class="text-center">Admin Dashboard</h2>
+<div class="row">
+    <div class="col-md-4">
+        <a href="/add_student/" class="btn btn-outline-primary w-100 mb-3">Add Student</a>
+    </div>
+    <div class="col-md-4">
+        <a href="/add_teacher/" class="btn btn-outline-success w-100 mb-3">Add Teacher</a>
+    </div>
+    <div class="col-md-4">
+        <a href="/add_course/" class="btn btn-outline-info w-100 mb-3">Add Course</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <a href="/generate_reports/" class="btn btn-outline-warning w-100">Generate Attendance Report</a>
+    </div>
+    <div class="col-md-6">
+        <a href="/logout/" class="btn btn-outline-danger w-100">Logout</a>
+    </div>
+</div>
+{% endblock %}
